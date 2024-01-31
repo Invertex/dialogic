@@ -35,8 +35,7 @@ var character_identifier: String:
 
 # Reference regex without Godot escapes: ((")?(?<name>(?(2)[^"\n]*|[^(: \n]*))(?(2)"|)(\W*\((?<portrait>.*)\))?\s*(?<!\\):)?(?<text>(.|\n)*)
 var regex := RegEx.create_from_string("((\")?(?<name>(?(2)[^\"\\n]*|[^(: \\n]*))(?(2)\"|)(\\W*(?<portrait>\\(.*\\)))?\\s*(?<!\\\\):)?(?<text>(.|\\n)*)")
-# Reference regex without godot escapes: ((\[n\]|\[n\+\])?((?!(\[n\]|\[n\+\]))(.|\n))*)
-var split_regex := RegEx.create_from_string("((\\[n\\]|\\[n\\+\\])?((?!(\\[n\\]|\\[n\\+\\]))(.|\\n))*)")
+var split_regex := RegEx.create_from_string(r"((\[n\]|\[n\+\])?((?!(\[n\]|\[n\+\]))(.|\n))+)")
 
 enum States {REVEALING, IDLE, DONE}
 var state := States.IDLE
@@ -128,8 +127,8 @@ func _execute() -> void:
 		# Handling potential Choice Events.
 		if dialogic.has_subsystem('Choices') and dialogic.Choices.is_question(dialogic.current_event_idx):
 			dialogic.Text.show_next_indicators(true)
-			dialogic.Choices.show_current_choices(false)
-			dialogic.current_state = dialogic.States.AWAITING_CHOICE
+			end_text_event()
+
 			return
 		elif dialogic.Inputs.auto_advance.is_enabled():
 			dialogic.Text.show_next_indicators(false, true)
@@ -152,6 +151,10 @@ func _execute() -> void:
 		else:
 			await advance
 
+	end_text_event()
+
+
+func end_text_event() -> void:
 	dialogic.current_state_info['text_sub_idx'] = 0
 
 	_disconnect_signals()
