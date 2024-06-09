@@ -72,7 +72,8 @@ func _execute() -> void:
 		Actions.JOIN:
 			if character:
 				if dialogic.has_subsystem('History') and !dialogic.Portraits.is_character_joined(character):
-					dialogic.History.store_simple_history_entry(character.display_name + " joined", event_name, {'character': character.display_name, 'mode':'Join'})
+					var character_name_text := dialogic.Text.get_character_name_parsed(character)
+					dialogic.History.store_simple_history_entry(character_name_text + " joined", event_name, {'character': character_name_text, 'mode':'Join'})
 
 				var final_animation_length: float = animation_length
 
@@ -105,7 +106,8 @@ func _execute() -> void:
 
 			elif character:
 				if dialogic.has_subsystem('History') and dialogic.Portraits.is_character_joined(character):
-					dialogic.History.store_simple_history_entry(character.display_name+" left", event_name, {'character': character.display_name, 'mode':'Leave'})
+					var character_name_text := dialogic.Text.get_character_name_parsed(character)
+					dialogic.History.store_simple_history_entry(character_name_text+" left", event_name, {'character': character_name_text, 'mode':'Leave'})
 
 				await dialogic.Portraits.leave_character(
 					character,
@@ -436,6 +438,8 @@ func get_portrait_suggestions(search_text:String) -> Dictionary:
 		suggestions["Don't Change"] = {'value':'', 'editor_icon':["GuiRadioUnchecked", "EditorIcons"]}
 	if action == Actions.JOIN:
 		suggestions["Default portrait"] = {'value':'', 'editor_icon':["GuiRadioUnchecked", "EditorIcons"]}
+	if "{" in search_text:
+		suggestions[search_text] = {'value':search_text, 'editor_icon':["Variant", "EditorIcons"]}
 	if character != null:
 		for portrait in character.portraits:
 			suggestions[portrait] = {'value':portrait, 'icon':icon.duplicate()}
