@@ -8,7 +8,7 @@ extends DialogicEvent
 ### Settings
 
 ## Content of the comment.
-var text :String = ""
+var text := ""
 
 
 ################################################################################
@@ -36,8 +36,7 @@ func _init() -> void:
 ################################################################################
 
 func to_text() -> String:
-	var result_string = "# "+text
-	return result_string
+	return "# "+text
 
 
 func from_text(string:String) -> void:
@@ -61,6 +60,6 @@ func build_event_editor() -> void:
 #################### SYNTAX HIGHLIGHTING #######################################
 ################################################################################
 
-func _get_syntax_highlighting(Highlighter:SyntaxHighlighter, dict:Dictionary, line:String) -> Dictionary:
+func _get_syntax_highlighting(Highlighter:SyntaxHighlighter, dict:Dictionary, _line:String) -> Dictionary:
 	dict[0] = {'color':event_color.lerp(Highlighter.normal_color, 0.3)}
 	return dict

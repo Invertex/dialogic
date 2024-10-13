@@ -8,8 +8,8 @@ extends DialogicEvent
 ### Settings
 
 ## Used to identify the label. Duplicate names in a timeline will mean it always chooses the first.
-var name: String = ""
-var display_name: String = ""
+var name := ""
+var display_name := ""
 
 
 
@@ -56,7 +56,7 @@ func to_text() -> String:
 
 
 func from_text(string:String) -> void:
-	var regex = RegEx.create_from_string(r'label +(?<name>[^(]+)(\((?<display_name>.+)\))?')
+	var regex := RegEx.create_from_string(r'label +(?<name>[^(]+)(\((?<display_name>.+)\))?')
 	var result := regex.search(string.strip_edges())
 	if result:
 		name = result.get_string('name').strip_edges()
@@ -101,7 +101,7 @@ func build_event_editor() -> void:
 ####################### CODE COMPLETION ########################################
 ################################################################################
 
-func _get_start_code_completion(CodeCompletionHelper:Node, TextNode:TextEdit) -> void:
+func _get_start_code_completion(_CodeCompletionHelper:Node, TextNode:TextEdit) -> void:
 	TextNode.add_code_completion_option(CodeEdit.KIND_PLAIN_TEXT, 'label', 'label ', event_color.lerp(TextNode.syntax_highlighter.normal_color, 0.3))
 
 
