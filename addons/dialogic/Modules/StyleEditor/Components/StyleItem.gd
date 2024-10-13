@@ -14,7 +14,7 @@ func _ready() -> void:
 		return
 
 	%Name.add_theme_font_override("font", get_theme_font("bold", "EditorFonts"))
-	custom_minimum_size = base_size*Vector2(200, 150)*DialogicUtil.get_editor_scale()
+	custom_minimum_size = base_size*Vector2(200, 150) * DialogicUtil.get_editor_scale()
 	%CurrentIcon.texture = get_theme_icon("Favorites", "EditorIcons")
 	if %Image.texture == null:
 		%Image.texture = get_theme_icon("ImportFail", "EditorIcons")
@@ -54,11 +54,11 @@ func set_current(current:bool):
 	%CurrentIcon.visible = current
 
 
-func _on_mouse_entered():
+func _on_mouse_entered() -> void:
 	%HoverBG.show()
 
 
-func _on_mouse_exited():
+func _on_mouse_exited() -> void:
 	%HoverBG.hide()
 
 
@@ -72,10 +72,10 @@ func _on_gui_input(event):
 		middle_clicked.emit()
 
 
-func _on_focus_entered():
+func _on_focus_entered() -> void:
 	$FocusFG.show()
 	focused.emit()
 
 
-func _on_focus_exited():
+func _on_focus_exited() -> void:
 	$FocusFG.hide()

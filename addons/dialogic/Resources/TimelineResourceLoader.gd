@@ -26,10 +26,14 @@ func _handles_type(typename: StringName) -> bool:
 
 # parse the file and return a resource
 func _load(path: String, original_path: String, use_sub_threads: bool, cache_mode: int):
-	if ResourceLoader.exists(path):
-		var file := FileAccess.open(path, FileAccess.READ)
+	var file := FileAccess.open(path, FileAccess.READ)
 
-		var tml := DialogicTimeline.new()
-		tml.from_text(file.get_as_text())
+	if not file:
+		# For now, just let editor know that for some reason you can't
+		# read the file.
+		print("[Dialogic] Error opening file:", FileAccess.get_open_error())
+		return FileAccess.get_open_error()
 
-		return tml
+	var tml := DialogicTimeline.new()
+	tml.from_text(file.get_as_text())
+	return tml

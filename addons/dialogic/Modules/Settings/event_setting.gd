@@ -22,14 +22,14 @@ var _value_type := 0 :
 		return _value_type
 	set(_value):
 		_value_type = _value
-		if not _suppress_default_value: 
+		if not _suppress_default_value:
 			match _value_type:
 				SettingValueType.STRING, SettingValueType.VARIABLE, SettingValueType.EXPRESSION:
 					value = ""
 				SettingValueType.NUMBER:
 					value = 0
 			ui_update_needed.emit()
-			
+
 var value: Variant = ""
 
 var mode := Modes.SET
@@ -145,7 +145,7 @@ func is_valid_event(string:String) -> bool:
 ## 						EDITOR REPRESENTATION
 ################################################################################
 
-func build_event_editor():
+func build_event_editor() -> void:
 	add_header_edit('mode', ValueType.FIXED_OPTIONS, {
 		'options': [{
 				'label': 'Set',
