@@ -126,6 +126,7 @@ func new_character(path: String) -> void:
 	resource.default_portrait = ""
 	resource.custom_info = {}
 	ResourceSaver.save(resource, path)
+	EditorInterface.get_resource_filesystem().update_file(path)
 	DialogicResourceUtil.update_directory('dch')
 	editors_manager.edit_resource(resource)
 
@@ -164,6 +165,7 @@ func _ready() -> void:
 	## Add general tabs
 	add_settings_section(load("res://addons/dialogic/Editor/CharacterEditor/char_edit_section_general.tscn").instantiate(), %MainSettingsSections)
 	add_settings_section(load("res://addons/dialogic/Editor/CharacterEditor/char_edit_section_portraits.tscn").instantiate(), %MainSettingsSections)
+	add_settings_section(load("res://addons/dialogic/Editor/CharacterEditor/character_prefix_suffix.tscn").instantiate(), %MainSettingsSections)
 
 
 	add_settings_section(load("res://addons/dialogic/Editor/CharacterEditor/char_edit_p_section_main_exports.tscn").instantiate(), %PortraitSettingsSection)
@@ -187,10 +189,12 @@ func _ready() -> void:
 func add_settings_section(edit:Control, parent:Node) ->  void:
 	edit.changed.connect(something_changed)
 	edit.character_editor = self
+
 	if edit.has_signal('update_preview'):
 		edit.update_preview.connect(update_preview)
 
 	var button: Button
+
 	if edit._show_title():
 		var hbox := HBoxContainer.new()
 		hbox.name = edit._get_title()+"BOX"
@@ -323,7 +327,7 @@ func import_portraits_from_folder(path:String) -> void:
 				if not '.import' in file_lower:
 					files.append(file_name)
 		file_name = dir.get_next()
-	
+
 	var prefix: String = files[0]
 	for file in files:
 		while true:
@@ -332,7 +336,7 @@ func import_portraits_from_folder(path:String) -> void:
 			if prefix.is_empty():
 				break
 			prefix = prefix.substr(0, len(prefix)-1)
-	
+
 	for file in files:
 		%PortraitTree.add_portrait_item(file.trim_prefix(prefix).trim_suffix('.'+file.get_extension()),
 			{'scene':"",'export_overrides':{'image':var_to_str(path.path_join(file))}, 'scale':1, 'offset':Vector2(), 'mirror':false}, parent)

@@ -32,6 +32,9 @@ var character_identifier: String:
 	set(value):
 		character_identifier = value
 		character = DialogicResourceUtil.get_character_resource(value)
+		if not character.portraits.has(portrait):
+			portrait = ""
+			ui_update_needed.emit()
 
 var regex := RegEx.create_from_string(r'\s*((")?(?<name>(?(2)[^"\n]*|[^(: \n]*))(?(2)"|)(\W*(?<portrait>\(.*\)))?\s*(?<!\\):)?(?<text>(.|\n)*)')
 var split_regex := RegEx.create_from_string(r"((\[n\]|\[n\+\])?((?!(\[n\]|\[n\+\]))(.|\n))+)")
@@ -61,6 +64,7 @@ func _execute() -> void:
 
 	var character_name_text := dialogic.Text.get_character_name_parsed(character)
 	if character:
+		dialogic.current_state_info['speaker'] = character.resource_path
 		if dialogic.has_subsystem('Styles') and character.custom_info.get('style', null):
 			dialogic.Styles.change_style(character.custom_info.style, false)
 			await dialogic.get_tree().process_frame

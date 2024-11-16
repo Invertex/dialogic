@@ -112,9 +112,11 @@ func batch_events(array: Array, size: int, batch_number: int) -> Array:
 var opener_events_stack := []
 
 func load_batch(data:Array) -> void:
-	var current_batch: Array = _batches.pop_front()
+	# Don't try to cast it to Array immedietly, as the item may have become null and will throw a useless error
+	var current_batch = _batches.pop_front()
 	if current_batch:
-		for i in current_batch:
+		var current_batch_items: Array = current_batch
+		for i in current_batch_items:
 			if i is DialogicEndBranchEvent:
 				create_end_branch_event(%Timeline.get_child_count(), opener_events_stack.pop_back())
 			else:
@@ -134,9 +136,9 @@ func _on_batch_loaded() -> void:
 		return
 
 	if opener_events_stack:
-
 		for ev in opener_events_stack:
-			create_end_branch_event(%Timeline.get_child_count(), ev)
+			if is_instance_valid(ev):
+				create_end_branch_event(%Timeline.get_child_count(), ev)
 
 	opener_events_stack = []
 	indent_events()
@@ -310,6 +312,11 @@ func _on_event_block_gui_input(event: InputEvent, item: Node) -> void:
 
 			drag_allowed = true
 
+		if event.is_released() and not %TimelineArea.dragging and not Input.is_key_pressed(KEY_SHIFT):
+			if len(selected_items) > 1 and item in selected_items and not Input.is_key_pressed(KEY_CTRL):
+				deselect_all_items()
+				select_item(item)
+
 	if len(selected_items) > 0 and event is InputEventMouseMotion:
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 			if !%TimelineArea.dragging and !get_viewport().gui_is_dragging() and drag_allowed:
@@ -423,12 +430,12 @@ func get_events_indexed(events:Array) -> Dictionary:
 		if event.resource is DialogicEndBranchEvent:
 			continue
 
-		indexed_dict[event.get_index()] = event.resource.to_text()
+		indexed_dict[event.get_index()] = event.resource._store_as_string()
 
 		# store an end branch if it is selected or connected to a selected event
 		if 'end_node' in event and event.end_node:
 			event = event.end_node
-			indexed_dict[event.get_index()] = event.resource.to_text()
+			indexed_dict[event.get_index()] = event.resource._store_as_string()
 		elif event.resource is DialogicEndBranchEvent:
 			if event.parent_node in events: # add local index
 				indexed_dict[event.get_index()] += str(events.find(event.parent_node))
@@ -469,7 +476,7 @@ func add_events_indexed(indexed_events:Dictionary) -> void:
 				event_resource = i.duplicate()
 				break
 
-		event_resource.from_text(indexed_events[event_idx])
+		event_resource._load_from_string(indexed_events[event_idx])
 
 		# now create the visual block.
 		deselect_all_items()
@@ -540,7 +547,7 @@ func copy_selected_events() -> void:
 
 	var event_copy_array := []
 	for item in selected_items:
-		event_copy_array.append(item.resource.to_text())
+		event_copy_array.append(item.resource._store_as_string())
 		if item.resource is DialogicEndBranchEvent:
 			if item.parent_node in selected_items: # add local index
 				event_copy_array[-1] += str(selected_items.find(item.parent_node))
@@ -1097,20 +1104,21 @@ func _input(event:InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 		"Ctrl+C":
+			select_events_indexed(get_events_indexed(selected_items))
 			copy_selected_events()
 			get_viewport().set_input_as_handled()
 
 		"Ctrl+V":
 			var events_list := get_clipboard_data()
-			var paste_position := -1
+			var paste_position := 0
 			if selected_items:
 				paste_position = selected_items[-1].get_index()+1
 			else:
-				paste_position = %Timeline.get_child_count()-1
+				paste_position = %Timeline.get_child_count()
 			if events_list:
 				TimelineUndoRedo.create_action("[D] Pasting "+str(len(events_list))+" event(s).")
 				TimelineUndoRedo.add_do_method(add_events_at_index.bind(events_list, paste_position))
-				TimelineUndoRedo.add_undo_method(delete_events_at_index.bind(paste_position+1, len(events_list)))
+				TimelineUndoRedo.add_undo_method(delete_events_at_index.bind(paste_position, len(events_list)))
 				TimelineUndoRedo.commit_action()
 				get_viewport().set_input_as_handled()
 

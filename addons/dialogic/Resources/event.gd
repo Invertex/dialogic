@@ -93,7 +93,7 @@ enum ValueType {
 	NUMBER,
 	VECTOR2, VECTOR3, VECTOR4,
 	# Other
-	CUSTOM, BUTTON, LABEL, COLOR
+	CUSTOM, BUTTON, LABEL, COLOR, AUDIO_PREVIEW
 }
 ## List that stores the fields for the editor
 var editor_list: Array = []
@@ -483,7 +483,7 @@ func build_event_editor() -> void:
 ## @left_text: 		Text that will be shown to the left of the field
 ## @right_text: 	Text that will be shown to the right of the field
 ## @extra_info: 	Allows passing a lot more info to the field.
-## 					What info can be passed is differnet for every field
+## 					What info can be passed is different for every field
 
 func add_header_label(text:String, condition:= "") -> void:
 	editor_list.append({
